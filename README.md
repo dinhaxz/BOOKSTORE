@@ -136,6 +136,167 @@ Resposta
 
 O backend retorna sucesso ou erro, e o app trata essa resposta (ex: login automático ou mensagem).
 
+
+🧠 1. O que são tipos de dados no Postman (JSON Schema)
+
+No Postman, quando você define um schema, você está dizendo:
+
+“Esse campo deve ser exatamente deste tipo — nada diferente.”
+
+Os principais tipos são:
+
+string → texto (ex: email, nome)
+integer / number → números
+boolean → true/false
+object → objeto JSON
+array → lista
+
+🔎 Exemplo:
+{
+  "age": { "type": "integer" },
+  "email": { "type": "string" }
+}
+
+👉 Se o backend mandar "age": "20" (string em vez de número), o teste falha.
+
+⚙️ 2. O que são Constraints (restrições)
+
+As constraints vão além do tipo. Elas dizem:
+
+“Além de ser do tipo correto, o valor precisa obedecer certas regras.”
+
+Exemplos comuns:
+
+🔢 Numéricos
+minimum, maximum → limites
+"age": {
+  "type": "integer",
+  "minimum": 0
+}
+
+➡️ Impede idade negativa
+
+📧 Strings (como email)
+format: "email"
+pattern (regex)
+minLength, maxLength
+"email": {
+  "type": "string",
+  "format": "email"
+}
+
+➡️ Impede emails inválidos
+
+
+📋 Regras estruturais
+required → campos obrigatórios
+enum → valores permitidos
+uniqueItems → itens únicos em arrays
+"status": {
+  "type": "string",
+  "enum": ["active", "inactive"]
+}
+
+➡️ Evita valores inesperados
+
+🚧 3. Por que isso é uma “primeira linha de defesa”
+
+O ponto mais importante:
+
+👉 O Postman valida os dados na fronteira da API, antes de chegar no app.
+
+Segundo a própria documentação:
+
+A validação com JSON Schema verifica dados automaticamente e rejeita dados inválidos antes de chegar à lógica da aplicação
+
+🔥 Exemplo prático (seu cenário)
+Caso 1: idade negativa
+
+Sem validação:
+
+{ "age": -5 }
+
+➡️ React Native pode quebrar UI ou lógica
+
+Com schema:
+
+"age": {
+  "type": "integer",
+  "minimum": 0
+}
+
+➡️ ❌ Teste falha no Postman
+➡️ Bug nunca chega ao app
+
+Caso 2: email duplicado ou inválido
+format: email → impede formato inválido
+duplicidade → geralmente validada com lógica + testes
+
+➡️ Você pode criar testes no Postman para garantir:
+
+pm.expect(response.email).to.not.equal(existingEmail)
+🧩 4. Relação direta com React Native
+
+Sem validação:
+
+dados inconsistentes chegam ao app
+crashes, telas quebradas, bugs difíceis
+
+Com validação no Postman:
+
+garante contrato de dados consistente
+frontend pode confiar nos dados
+reduz necessidade de validação defensiva no app
+
+👉 Em outras palavras:
+
+Postman = teste de contrato
+React Native = consumo confiável
+🧪 5. Como isso funciona na prática no Postman
+
+Você escreve um teste assim:
+
+pm.test("Schema válido", function () {
+  const schema = {
+    type: "object",
+    properties: {
+      age: { type: "integer", minimum: 0 },
+      email: { type: "string", format: "email" }
+    },
+    required: ["age", "email"]
+  };
+
+  pm.response.to.have.jsonSchema(schema);
+});
+
+➡️ Se qualquer regra for violada:
+
+o teste falha
+você detecta o erro antes de produção
+🧱 6. Conclusão (visão arquitetural)
+
+Os tipos + constraints no Postman atuam como:
+
+✅ Contrato de dados
+
+Definem exatamente como a API deve responder
+
+🚫 Filtro de erros
+
+Bloqueiam:
+
+idade negativa
+tipos errados
+campos ausentes
+formatos inválidos
+🛡️ Primeira linha de teste
+
+Evitam que dados inválidos:
+
+cheguem ao React Native
+quebrem componentes
+causem bugs silenciosos
+
 🔒 Segurança
 
 Senhas são armazenadas com hash (bcrypt)
