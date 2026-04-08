@@ -235,6 +235,7 @@ duplicidade → geralmente validada com lógica + testes
 ➡️ Você pode criar testes no Postman para garantir:
 
 pm.expect(response.email).to.not.equal(existingEmail)
+
 🧩 4. Relação direta com React Native
 
 Sem validação:
@@ -252,6 +253,7 @@ reduz necessidade de validação defensiva no app
 
 Postman = teste de contrato
 React Native = consumo confiável
+
 🧪 5. Como isso funciona na prática no Postman
 
 Você escreve um teste assim:
@@ -273,6 +275,7 @@ pm.test("Schema válido", function () {
 
 o teste falha
 você detecta o erro antes de produção
+
 🧱 6. Conclusão (visão arquitetural)
 
 Os tipos + constraints no Postman atuam como:
